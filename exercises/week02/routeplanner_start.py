@@ -42,24 +42,56 @@ class RouteAgent:
 
     def utility(self, from_city: str, to_city: str) -> float:
         """TODO: geef -d(from_city, to_city) terug."""
-        return 0.0
+        return -(distance(from_city, to_city))
 
     def neighbours(self, city: str) -> list[str]:
         """TODO: geef alle steden met een directe weg naar `city`."""
-        return []
+        result = []
+        for i, j in ROADS:
+            if i == city:
+                result.append(j)
+            if j == city:
+                result.append(i)
+
+        return result
 
     def choose_next(self, current_city: str, visited: set[str]) -> Optional[str]:
         """TODO: kies onder de niet-bezochte buren de buur met de
         hoogste utility. Geen buren meer? -> None.
         """
-        return None
+        best_city = None
+
+        best_utility = float("-inf")
+        for i in self.neighbours(current_city):
+            if i not in visited:
+                score = self.utility(current_city, i)
+
+                if score > best_utility:
+                    best_city = i
+                    best_utility = score
+        
+        return best_city
 
     def plan_route(self, start_city: str, goal_city: str) -> list[str]:
         """TODO: bouw de route stad per stad via choose_next.
 
         Stop zodra de goal bereikt is of de agent vastzit.
         """
-        return [start_city]
+        route = [start_city]
+        visited = {start_city}
+        current_city = start_city
+
+        while(current_city != goal_city):
+            next_city = self.choose_next(current_city, visited)
+
+            if next_city is None:
+                break
+
+            route.append(next_city)
+            visited.add(next_city)
+            current_city = next_city
+
+        return route
 
 
 if __name__ == "__main__":
